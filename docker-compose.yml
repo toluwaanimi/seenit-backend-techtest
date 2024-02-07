@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  user:
+    container_name: user-service
+    build:
+      context: .
+      dockerfile: ./packages/user/Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - seenit_network
+    env_file: ./packages/user/.env
+    environment:
+      - USER_PORT=3000
+  project:
+    container_name: project-service
+    build:
+      context: .
+      dockerfile: ./packages/project/Dockerfile
+    ports:
+      - "3002:3002"
+    networks:
+      - seenit_network
+    env_file: ./packages/project/.env
+    environment:
+      - PROJECT_PORT=3002
+  app:
+    container_name: gateway-api
+    build:
+      context: .
+      dockerfile: ./packages/gateway/Dockerfile
+    ports:
+      - "3001:3001"
+    networks:
+      - seenit_network
+    env_file: ./packages/gateway/.env
+    depends_on:
+      - user
+      - project
+    environment:
+      - USER_SERVICE_URL=http://user:3000/graphql
+      - PROJECT_SERVICE_URL=http://project:3002/graphql
+      - GATEWAY_PORT=3001
+
+networks:
+  seenit_network:
+    driver: bridge

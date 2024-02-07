@@ -1,0 +1,20 @@
+{
+  "name": "service",
+  "version": "1.0.0",
+  "scripts": {
+    "install:user": "cd packages/user && npm install --force",
+    "install:project": "cd packages/project && npm install --force",
+    "install:gateway": "cd packages/gateway && npm install --force",
+    "install:all": "npm run install:user && npm run install:project && npm run install:gateway",
+    "start:user": "cd packages/user && npm run start:dev",
+    "start:project": "cd packages/project && npm run start:dev",
+    "start:gateway": "cd packages/gateway && npm run start:dev",
+    "start-all-with-gateway-last": "concurrently \"npm run start:user\" \"npm run start:project\" \"sleep 10 && npm run start:gateway\"",
+    "test:user": "cd packages/user && npm run test",
+    "test:project": "cd packages/project && npm run test",
+    "test:all": "npm run test:user && npm run test:project"
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.2"
+  }
+}
