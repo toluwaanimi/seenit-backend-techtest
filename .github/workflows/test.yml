@@ -6,7 +6,6 @@ on:
 jobs:
   run-tests:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -18,3 +17,28 @@ jobs:
 
       - name: Run all services tests
         run: npm run test:all
+
+  build-docker-images:
+    runs-on: ubuntu-latest
+    needs: run-tests
+    steps:
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker Image for User Service
+        run: |
+          cd packages/user
+          docker build -t user-service .
+        working-directory: ./packages/user
+
+      - name: Build Docker Image for Project Service
+        run: |
+          cd packages/project
+          docker build -t project-service .
+        working-directory: ./packages/project
+
+      - name: Build Docker Image for Gateway API
+        run: |
+          cd packages/gateway
+          docker build -t gateway-api .
+        working-directory: ./packages/gateway
