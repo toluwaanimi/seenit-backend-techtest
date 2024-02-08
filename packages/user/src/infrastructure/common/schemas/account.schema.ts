@@ -1,4 +1,5 @@
 import { Directive, Field, ID, InputType, ObjectType } from '@nestjs/graphql';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 @ObjectType()
 @Directive('@key(fields: "id")')
@@ -28,20 +29,25 @@ export class User {
 @InputType()
 export class UpdateUserInput {
   @Field({ nullable: true })
+  @IsOptional()
   firstName: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   surname: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   avatarUrl: string;
 }
 
 @InputType()
 export class UpdatePasswordInput {
   @Field()
+  @IsNotEmpty()
   oldPassword: string;
 
   @Field()
+  @IsNotEmpty()
   newPassword: string;
 }

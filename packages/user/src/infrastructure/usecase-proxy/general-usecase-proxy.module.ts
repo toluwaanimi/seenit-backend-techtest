@@ -12,6 +12,7 @@ import { LoginUseCase } from '../../usecase/auth/login.usecase';
 import { RegisterUseCase } from '../../usecase/auth/register.usecase';
 import { GetProfileUseCase } from '../../usecase/account/get-profile.usecase';
 import { UpdateProfileUseCase } from '../../usecase/account/update-profile.usecase';
+import { GetUsersUseCase } from '../../usecase/account/get-users.usecase';
 
 /**
  * Module to manage the creation and configuration of general use case proxies.
@@ -31,6 +32,7 @@ export class GeneralUseCaseProxyModule {
   static REGISTER_USE_CASES_PROXY = 'RegisterUseCasesProxy';
   static GET_USER_ACCOUNT_USE_CASES_PROXY = 'GetUserAccountUseCasesProxy';
   static UPDATE_USER_ACCOUNT_USE_CASES_PROXY = 'UpdateUserAccountUseCasesProxy';
+  static GET_ALL_USERS_USE_CASES_PROXY = 'GetAllUsersUseCasesProxy';
 
   static register() {
     return {
@@ -84,6 +86,12 @@ export class GeneralUseCaseProxyModule {
         },
         {
           inject: [LoggerService, UserRepository],
+          provide: GeneralUseCaseProxyModule.GET_ALL_USERS_USE_CASES_PROXY,
+          useFactory: (logger: LoggerService, userRepository: UserRepository) =>
+            new UseCaseProxy(new GetUsersUseCase(userRepository)),
+        },
+        {
+          inject: [LoggerService, UserRepository],
           provide:
             GeneralUseCaseProxyModule.UPDATE_USER_ACCOUNT_USE_CASES_PROXY,
           useFactory: (logger: LoggerService, userRepository: UserRepository) =>
@@ -95,6 +103,7 @@ export class GeneralUseCaseProxyModule {
         GeneralUseCaseProxyModule.REGISTER_USE_CASES_PROXY,
         GeneralUseCaseProxyModule.GET_USER_ACCOUNT_USE_CASES_PROXY,
         GeneralUseCaseProxyModule.UPDATE_USER_ACCOUNT_USE_CASES_PROXY,
+        GeneralUseCaseProxyModule.GET_ALL_USERS_USE_CASES_PROXY,
       ],
     };
   }

@@ -6,8 +6,9 @@ import { ProjectModel } from '../../domain/model';
 import { IFindOneOptions, IFindOptions } from '../../domain/adapters';
 import { IPaginateOptions, IPaginateResult } from '../../domain/adapters';
 import { v4 as uuidv4 } from 'uuid';
-import { ILike, Limit, Offset, OrderBy, Where } from './database';
+import { ILike } from './database';
 import { getErrorMessage } from './database';
+import { CouchbaseQueryBuilder } from './database/couchbase.query.builder';
 
 /**
  * ProjectRepository  responsible for managing project data in the Couchbase database.
@@ -71,28 +72,15 @@ export class ProjectRepository implements IProjectRepository, OnModuleInit {
    * @name find
    */
   async find(options: IFindOptions<ProjectModel>): Promise<ProjectModel[]> {
-    let query = `SELECT * FROM \`${this.collectionName}\``;
-
+    const builder = new CouchbaseQueryBuilder<ProjectModel>()
+      .findAll()
+      .from(this.collectionName)
+      .where(options.where)
+      .limit(options.limit)
+      .offset((options.offset - 1) * options.limit)
+      .build();
     try {
-      if (options && options.where && Object.keys(options.where).length > 0) {
-        const whereConditions = Where(options.where, 'AND');
-        query += ` WHERE ${whereConditions}`;
-      }
-      if (options && options.orderBy) {
-        query += OrderBy([{ field: options.orderBy }]);
-      }
-
-      if (options && options.limit) {
-        query += Limit(options.limit);
-      }
-
-      if (options && options.offset) {
-        query += Offset(options.offset);
-      }
-      const result: QueryResult = await this.scope.query(query, {
-        parameters:
-          options && options.where ? Object.values(options.where) : [],
-      });
+      const result: QueryResult = await this.scope.query(builder);
       return this.transformCouchbaseProjectsToModel(result.rows);
     } catch (e) {
       throw new Error(getErrorMessage(e));
@@ -107,18 +95,14 @@ export class ProjectRepository implements IProjectRepository, OnModuleInit {
    * @throws Error
    */
   async findOne(options: IFindOneOptions<ProjectModel>): Promise<ProjectModel> {
-    let query = `SELECT * FROM \`${this.collectionName}\``;
+    const builder = new CouchbaseQueryBuilder<ProjectModel>()
+      .findOne()
+      .from(this.collectionName)
+      .where(options.where)
+      .build();
 
     try {
-      if (options && options.where && Object.keys(options.where).length > 0) {
-        const whereConditions = Where(options.where, 'AND');
-        query += ` WHERE ${whereConditions}`;
-      }
-
-      const result: QueryResult = await this.scope.query(query, {
-        parameters:
-          options && options.where ? Object.values(options.where) : [],
-      });
+      const result: QueryResult = await this.scope.query(builder);
 
       if (result.rows.length > 0) {
         return this.transformProjectToModel(result.rows[0].projects);
@@ -142,35 +126,22 @@ export class ProjectRepository implements IProjectRepository, OnModuleInit {
     searchOptions?: IFindOptions<ProjectModel>,
   ): Promise<IPaginateResult<ProjectModel>> {
     const { page, limit, sort } = options;
-    let query = `SELECT * FROM \`${this.collectionName}\``;
+    const builder = new CouchbaseQueryBuilder<ProjectModel>()
+      .findAll()
+      .from(this.collectionName)
+      .where(searchOptions.where)
+      .orderBy(sort)
+      .limit(limit)
+      .offset((page - 1) * limit)
+      .build();
 
     try {
-      if (
-        searchOptions &&
-        searchOptions.where &&
-        Object.keys(searchOptions.where).length > 0
-      ) {
-        const whereConditions = Where(searchOptions.where, 'AND');
-        query += ` WHERE ${whereConditions}`;
-      }
-
-      if (sort) {
-        query += OrderBy([{ field: sort }]);
-      }
-
-      // Calculate pagination offsets
-      const offset = (page - 1) * limit;
-
-      // Add pagination limits
-      query += `${Limit(limit)}  ${Offset(offset)} `;
-
-      const result: QueryResult = await this.scope.query(query, {
+      const result: QueryResult = await this.scope.query(builder, {
         parameters:
           searchOptions && searchOptions.where
             ? Object.values(searchOptions.where)
             : [],
       });
-
       return {
         data: this.transformCouchbaseProjectsToModel(result.rows),
         limit,

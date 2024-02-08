@@ -40,10 +40,14 @@ import { authorizedGraphqlUser } from './infrastructure/common/constants';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       context: ({ req }: any) => ({ req }),
       formatError: (error: GraphQLError) => {
+        let message = error?.message;
+        if (error.extensions?.code === 'BAD_USER_INPUT') {
+          message = error?.extensions?.response.message[0] || message;
+        } else {
+          message = error?.extensions?.exception?.response?.message || message;
+        }
         const graphQLFormattedError: GraphQLFormattedError = {
-          message:
-            // @ts-ignore
-            error?.extensions?.exception?.response?.message || error?.message,
+          message: message,
         };
         return graphQLFormattedError;
       },

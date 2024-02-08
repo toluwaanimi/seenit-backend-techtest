@@ -16,6 +16,7 @@ import {
   GetAuthUser,
   IAuthUser,
 } from '../../common/decorators/get-user.decorator';
+import { GetUsersUseCase } from '../../../usecase/account/get-users.usecase';
 
 @Resolver(() => User)
 @UseGuards(AuthGuard)
@@ -25,6 +26,8 @@ export class AccountResolver {
     private readonly getProfileUseCaseUseCaseProxy: UseCaseProxy<GetProfileUseCase>,
     @Inject(GeneralUseCaseProxyModule.UPDATE_USER_ACCOUNT_USE_CASES_PROXY)
     private readonly updateProfileUseCaseUseCaseProxy: UseCaseProxy<UpdateProfileUseCase>,
+    @Inject(GeneralUseCaseProxyModule.GET_ALL_USERS_USE_CASES_PROXY)
+    private readonly getUsersUseCaseUseCaseProxy: UseCaseProxy<GetUsersUseCase>,
   ) {}
 
   @Query(() => User, { name: 'profile' })
@@ -47,6 +50,11 @@ export class AccountResolver {
     return this.getProfileUseCaseUseCaseProxy
       .getInstance()
       .getProfile(reference.id);
+  }
+
+  @Query(() => [User], { name: 'users' })
+  async users() {
+    return await this.getUsersUseCaseUseCaseProxy.getInstance().getUsers();
   }
 
   @Query(() => User, { name: 'user' })

@@ -18,9 +18,9 @@ import {
   PROJECT_SERVICE_URL,
   USER_SERVICE_URL,
 } from './config/env.config';
-const basicAuth = require('express-basic-auth');
 import { Request, Response, NextFunction } from 'express';
 import { authorizedGraphqlUser } from './common/constants';
+const basicAuth = require('express-basic-auth');
 
 /**
  * Extracts token from authorization header
@@ -173,6 +173,7 @@ export class AuthMiddleware implements NestMiddleware {
     if (this.isExecuted) {
       return next();
     }
+    console.log('req.headers.authorization', req.headers.authorization);
     if (req.headers.authorization) {
       this.isExecuted = true;
     }

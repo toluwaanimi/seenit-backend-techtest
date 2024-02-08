@@ -10,14 +10,8 @@ import {
   IPaginateOptions,
   IPaginateResult,
 } from '../../domain/adapters';
-import {
-  getErrorMessage,
-  ILike,
-  Limit,
-  Offset,
-  OrderBy,
-  Where,
-} from './database';
+import { getErrorMessage, ILike } from './database';
+import { CouchbaseQueryBuilder } from './database/couchbase.query.builder';
 
 /**
  * UserRepository responsible for managing user data in the Couchbase database.
@@ -77,29 +71,15 @@ export class UserRepository implements IUserRepository, OnModuleInit {
    * @name find
    */
   async find(options?: IFindOptions<UserModel>): Promise<UserModel[]> {
-    let query = `SELECT * FROM \`${this.collectionName}\``;
-
+    const builder = new CouchbaseQueryBuilder<UserModel>()
+      .findAll()
+      .from(this.collectionName)
+      .where(options.where)
+      .limit(options.limit)
+      .offset((options.offset - 1) * options.limit)
+      .build();
     try {
-      if (options && options.where && Object.keys(options.where).length > 0) {
-        const whereConditions = Where(options.where, 'AND');
-        query += ` WHERE ${whereConditions}`;
-      }
-
-      if (options && options.orderBy) {
-        query += OrderBy([{ field: options.orderBy }]);
-      }
-
-      if (options && options.limit) {
-        query += Limit(options.limit);
-      }
-
-      if (options && options.offset) {
-        query += Offset(options.offset);
-      }
-      const result: QueryResult = await this.scope.query(query, {
-        parameters:
-          options && options.where ? Object.values(options.where) : [],
-      });
+      const result: QueryResult = await this.scope.query(builder);
       return this.transformCouchbaseResultToUsersModel(result.rows);
     } catch (error) {
       throw new Error(getErrorMessage(error));
@@ -119,34 +99,18 @@ export class UserRepository implements IUserRepository, OnModuleInit {
     searchOptions?: IFindOptions<UserModel>,
   ): Promise<IPaginateResult<UserModel>> {
     const { page, limit, sort } = options;
-    let query = `SELECT * FROM \`${this.collectionName}\``;
+
+    const builder = new CouchbaseQueryBuilder<UserModel>()
+      .findAll()
+      .from(this.collectionName)
+      .where(searchOptions.where)
+      .orderBy(sort)
+      .limit(limit)
+      .offset((page - 1) * limit)
+      .build();
 
     try {
-      if (
-        searchOptions &&
-        searchOptions.where &&
-        Object.keys(searchOptions.where).length > 0
-      ) {
-        const whereConditions = Where(searchOptions.where, 'AND');
-        query += ` WHERE ${whereConditions}`;
-      }
-      if (sort) {
-        query += OrderBy([{ field: sort }]);
-      }
-
-      // Calculate pagination offsets
-      const offset = (page - 1) * limit;
-
-      // Add pagination limits
-      query += `${Limit(limit)}  ${Offset(offset)} `;
-
-      const result: QueryResult = await this.scope.query(query, {
-        parameters:
-          searchOptions && searchOptions.where
-            ? Object.values(searchOptions.where)
-            : [],
-      });
-
+      const result: QueryResult = await this.scope.query(builder);
       return {
         data: this.transformCouchbaseResultToUsersModel(result.rows),
         limit,
@@ -169,18 +133,13 @@ export class UserRepository implements IUserRepository, OnModuleInit {
   async findOne(
     options: IFindOneOptions<UserModel>,
   ): Promise<UserModel | null> {
-    let query = `SELECT * FROM \`${this.collectionName}\``;
-
+    const builder = new CouchbaseQueryBuilder<UserModel>()
+      .findOne()
+      .from(this.collectionName)
+      .where(options.where)
+      .build();
     try {
-      if (options && options.where && Object.keys(options.where).length > 0) {
-        const whereConditions = Where(options.where, 'AND');
-        query += ` WHERE ${whereConditions}`;
-      }
-
-      const result: QueryResult = await this.scope.query(query, {
-        parameters:
-          options && options.where ? Object.values(options.where) : [],
-      });
+      const result: QueryResult = await this.scope.query(builder);
 
       if (result.rows.length > 0) {
         return this.transformCouchbaseResultToUserModel(result.rows[0].users);

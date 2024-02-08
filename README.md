@@ -18,7 +18,7 @@ Create the following
 
 ```javascript
 {
-        firstName,
+    firstName,
         surname,
         email,
         avatarUrl,
@@ -141,7 +141,7 @@ easier maintenance of the codebase. The main benefits of this approach are:
   implementation details such as data access and external API integrations.
     - `common/`: Contains shared code and utilities for the infrastructure layer.
     - `config/`: Contains configuration files for the infrastructure layer.
-    - `controllers/`: Contains controllers for the HTTP endpoints.
+    - `resolvers/`: Contains resolvers for the GraphQL API.
     - `entities/`: Contains database entities for the domain models.
     - `logger/`: Contains logging setup and utilities for the infrastructure layer.
     - `repositories/`: Contains concrete implementations of the repository interfaces.
@@ -282,6 +282,7 @@ our playground.
 To enhance this, we can transition to using a database to store and authenticate credentials dynamically.
 This approach simplifies credential management and allows for more flexible access control.
 
+![Basic Auth for Playground](./basic-auth.png)
 ## Solution 📦
 
 ### Users Service
@@ -359,6 +360,20 @@ mutation{
         avatarUrl
         updatedAt
         createdAt
+    }
+}
+```
+
+#### Get Users
+
+```graphql
+query{
+    users{
+        id
+        firstName
+        lastName
+        avatarUrl
+        email
     }
 }
 ```
@@ -457,6 +472,8 @@ query{
 }
 ```
 
+
+
 #### Update Project
 
 ```graphql
@@ -512,4 +529,68 @@ npm run test:all
 
 ![e2e](./test-case.png)
 
+## Couchbase Query Builder (In development mode only within this project)
+
+To query the database, we used the Couchbase Query Builder. This is a powerful tool that allows us to build complex
+
+```typescript
+interface QueryBuilderInterface<T> {
+    findOne(): QueryBuilderInterface<T>;
+
+    findAll(): QueryBuilderInterface<T>;
+
+    select(columns: (keyof T | string)[]): QueryBuilderInterface<T>;
+
+    from(table: string): QueryBuilderInterface<T>;
+
+    where(conditions: PartialCondition<T> | PartialCondition<T>[]): QueryBuilderInterface<T>;
+
+    andWhere(conditions: PartialCondition<T>): QueryBuilderInterface<T>;
+
+    orWhere(conditions: PartialCondition<T>[]): QueryBuilderInterface<T>;
+
+    orderBy(field: keyof T, direction?: OrderDirection): QueryBuilderInterface<T>;
+
+    limit(limit: number): QueryBuilderInterface<T>;
+
+    offset(offset: number): QueryBuilderInterface<T>;
+
+    update(values: Partial<T>): QueryBuilderInterface<T>;
+
+    delete(): QueryBuilderInterface<T>;
+
+    build(): string;
+}
+```
+
+### Usage Example
+
+```typescript
+interface User {
+    firstName: string;
+    lastName: string;
+    age: number;
+    verified: boolean
+}
+
+const query = new QueryBuilder<User>()
+    .select(['firstName', 'lastName', 'age', 'verified'])
+    .where([
+        Equal('firstName', 'John'),
+        LessThanOrEqual('age', 30),
+        NotEqual('lastName', 'Doe'),
+        {firstName: 'Hello', age: 25},
+        {age: 25, verified: false}
+    ]).andWhere({
+        firstName: "Just"
+    })
+    .from('users')
+    .orderBy('lastName', 'ASC')
+    .orderBy('firstName', 'DESC')
+    .limit(10)
+    .offset(5)
+    .build();
+
+console.log(query);
+```
 

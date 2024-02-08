@@ -1,4 +1,4 @@
-import { IUserRepository } from '../../domain/repositories/user-repository.interface';
+import { IUserRepository } from '../../domain/repositories';
 import { User } from '../../infrastructure/common/schemas/account.schema';
 
 export class GetProfileUseCase {

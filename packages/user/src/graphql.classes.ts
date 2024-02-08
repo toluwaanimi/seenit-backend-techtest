@@ -46,6 +46,8 @@ export abstract class IQuery {
 
     abstract profile(): User | Promise<User>;
 
+    abstract users(): User[] | Promise<User[]>;
+
     abstract user(id: string): User | Promise<User>;
 }
 
