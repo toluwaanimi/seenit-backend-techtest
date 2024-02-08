@@ -18,10 +18,11 @@ jobs:
       - name: Run all services tests
         run: npm run test:all
 
-  build-docker-images-with-docker-compose:
-    runs-on: ubuntu-latest
-    needs: run-tests
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build the Docker image with Docker Compose
-        run: docker-compose build --no-cache --force-rm
+# TODO: Add a job to build the Docker images with Docker Compose with the resolving the use of .env file
+#  build-docker-images-with-docker-compose:
+#    runs-on: ubuntu-latest
+#    needs: run-tests
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Build the Docker image with Docker Compose
+#        run: docker-compose build --no-cache --force-rm
