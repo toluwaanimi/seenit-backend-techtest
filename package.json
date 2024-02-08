@@ -12,7 +12,9 @@
     "start-all-with-gateway-last": "concurrently \"npm run start:user\" \"npm run start:project\" \"sleep 10 && npm run start:gateway\"",
     "test:user": "cd packages/user && npm run test",
     "test:project": "cd packages/project && npm run test",
-    "test:all": "npm run test:user && npm run test:project"
+    "test:all": "npm run test:user && npm run test:project",
+    "generate:doc:user": "cd packages/user && npm run documentation:serve",
+    "generate:doc:project": "cd packages/project && npm run documentation:serve"
   },
   "devDependencies": {
     "concurrently": "^6.0.2"

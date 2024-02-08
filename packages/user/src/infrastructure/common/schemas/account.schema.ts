@@ -1,8 +1,20 @@
 import { Directive, Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
+/**
+ * @name Directive
+ * @description Directive
+ */
+function getKeyDirective<T>(): any {
+  return Directive('@key(fields: "id")');
+}
+/**
+ * User object type
+ * @class User
+ * @description User object type
+ */
 @ObjectType()
-@Directive('@key(fields: "id")')
+@getKeyDirective()
 export class User {
   @Field(() => ID)
   id: string;
@@ -25,7 +37,10 @@ export class User {
   @Field()
   updatedAt: Date;
 }
-
+/**
+ * @name UpdateUserInput
+ * @description Update user input
+ */
 @InputType()
 export class UpdateUserInput {
   @Field({ nullable: true })
@@ -41,6 +56,10 @@ export class UpdateUserInput {
   avatarUrl: string;
 }
 
+/**
+ * @name UpdatePasswordInput
+ * @description Update password input
+ */
 @InputType()
 export class UpdatePasswordInput {
   @Field()

@@ -5,12 +5,13 @@ packages/user/node_modules/
 packages/user/.idea
 packages/user/dist/
 packages/user/.env
+packages/user/documentation
 
 
 packages/project/node_modules/
 packages/project/dist/
 packages/project/.env
-
+packages/project/documentation
 
 packages/gateway/node_modules/
 packages/gateway/.idea

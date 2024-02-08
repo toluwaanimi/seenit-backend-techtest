@@ -1,6 +1,6 @@
 import * as env from 'env-var';
 import { config } from 'dotenv';
-import { IEnvironmentInterface } from '../../../domain/config/environment.interface';
+import { IEnvironmentInterface } from '../../../domain/config';
 
 config();
 

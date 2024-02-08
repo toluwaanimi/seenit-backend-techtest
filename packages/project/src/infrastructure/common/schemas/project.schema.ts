@@ -35,17 +35,29 @@ export class CreateProjectInput {
   createdBy?: string;
 }
 
+function getKeyDirective<T>(): any {
+  return Directive('@key(fields: "id")');
+}
+
+function getExtendsDirective(): any {
+  return Directive('@extends');
+}
+
+function getExternalDirective(): any {
+  return Directive('@external');
+}
+
 @ObjectType()
-@Directive('@extends')
-@Directive('@key(fields: "id")')
+@getExtendsDirective()
+@getKeyDirective()
 export class User {
   @Field(() => ID)
-  @Directive('@external')
+  @getExternalDirective()
   id: string;
 }
 
 @ObjectType()
-@Directive('@key(fields: "id")')
+@getKeyDirective()
 export class Project {
   @Field()
   id: string;

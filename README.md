@@ -529,6 +529,30 @@ npm run test:all
 
 ![e2e](./test-case.png)
 
+
+## Generating Documentation 📚
+
+To generate documentation for the services, use the following command:
+
+### Users Service
+
+```markdown
+npm run generate:doc:user
+```
+
+The documentation would be generated and load in the browser at `http://localhost:3006`
+
+![User Service Documentation](./user-docs.png)
+### Projects Service
+
+```markdown
+npm run generate:doc:project
+```
+
+The documentation would be generated and load in the browser at `http://localhost:3005`
+![Project Service Documentation](./project-docs.png)
+
+
 ## Couchbase Query Builder (In development mode only within this project)
 
 To query the database, we used the Couchbase Query Builder. This is a powerful tool that allows us to build complex

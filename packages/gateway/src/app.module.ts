@@ -173,7 +173,6 @@ export class AuthMiddleware implements NestMiddleware {
     if (this.isExecuted) {
       return next();
     }
-    console.log('req.headers.authorization', req.headers.authorization);
     if (req.headers.authorization) {
       this.isExecuted = true;
     }

@@ -4,6 +4,11 @@ import { IEnvironmentInterface } from '../../../domain/config';
 
 config();
 
+/**
+ * Environment configuration
+ * @implements {IEnvironmentInterface}
+ * @name EnvironmentConfig
+ */
 class EnvironmentConfig implements IEnvironmentInterface {
   getPort(): number {
     return env.get('USER_PORT').asInt() || 3000;
@@ -42,4 +47,8 @@ class EnvironmentConfig implements IEnvironmentInterface {
   }
 }
 
+/**
+ * Environment configuration
+ * @name envConfig
+ */
 export const envConfig = new EnvironmentConfig();

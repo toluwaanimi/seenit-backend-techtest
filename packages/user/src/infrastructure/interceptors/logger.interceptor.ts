@@ -8,6 +8,11 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { LoggerService } from '../logger/logger.service';
 
+/**
+ * Interceptor to log incoming requests and their duration
+ * @class
+ * @implements {NestInterceptor}
+ */
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   constructor(private readonly logger: LoggerService) {}
